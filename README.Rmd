@@ -1,0 +1,135 @@
+---
+title: "Shitty introduction to R"
+author: "Elias M. Guerra"
+date: "5/18/2018"
+output: github_document
+---
+
+This is not a guide on how to code in R. It’s just how I do it. I don’t explain everything that I’m doing. You can figure it out. 
+
+Onward. 
+
+
+```{r echo=FALSE, fig.height=6, message=FALSE, warning=FALSE, paged.print=FALSE}
+## install.packages("imager") ## I've already done this before so I don't need to do it again
+library(imager)
+im <- load.image("machine_learning.png")
+plot(im, axes = F)
+
+```
+
+I had to look at the following pages to figure out how to include the above picture:
+
+1. https://dahtah.github.io/imager/imager.html
+
+2. https://stackoverflow.com/questions/26881866/resizing-images-in-rmarkdown 
+
+Comic from: https://xkcd.com/1838/ 
+
+Next.
+
+There are lots of different terms for all the computer stuff that you use in R like vectors, booleans, factors, concatenate, for loops, if else statements, decision trees, etc. I don't know all the names. I don't think it's that big a deal. 
+
+### R works like this:
+
+```{r}
+x <- 1
+y <- 2
+# This is a comment
+z = 3 # Some people say you shouldn't use the equals sign idk 
+x
+## x <- 100
+x + y + z
+y^2
+y1 <- c(1,2,3,4,5)
+x1 <- seq(from = 1, to = 212, length = 5)
+x1
+plot(x1, y1)
+
+
+df1 <- data.frame(v1 = rnorm(n = 10, mean = -20, sd = 4),
+                  v2 = runif(n = 10, min = -20, max = 212))
+?rnorm # Draw n random values from the normal distribution 
+?runif # Draw n random value from uniform distribution
+df1
+str(df1) # This is better than printing a huge data frame
+df1$v1
+df1$v1[1]
+df1[1,1]
+df1[1:5,]
+df1$v2 > 100 
+true.false <- df1$v2 > 100
+df1[true.false,]
+df1$v1[true.false]
+```
+
+This is all just one big logic problem. 
+
+### This is a big one:
+
+This is a for loop. 
+
+```{r}
+for (i in 1:5) {
+  print(i)
+}
+
+n <- 5 # This line is useful
+xx <- seq(1,100,length = n)
+for (i in 1:n) {
+  aa <- xx[i]
+  print(aa) ## I could also have written print(xx[i])
+}
+## Take a look at xx if this does not make sense
+```
+
+You can do a lot with for loops. Below is just an example. 
+
+I'm using this dataset from the ggplot2 package about 38 popular car models in 1999 and 2008. I want to know the average miles per gallon (on the highway) for each manufacturer in 1999 and 2008. 
+ 
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+## install.packages("ggplot2")
+## You'll need to uncomment the above line if you want to run this yourself
+library(ggplot2)
+library(knitr)
+str(mpg)
+mpg.hwy <- matrix(ncol = 3, nrow = 0)
+for (y in unique(mpg$year)) {
+  for (m in unique(mpg$manufacturer)) {
+    mm <- mpg[mpg$year == y & mpg$manufacturer == m, ]
+    ifelse(nrow(mm) == 0, h <- NA, h <- mean(mm$hwy))
+    new.row <- c(yr = y, man = m, hwy = h)
+    mpg.hwy <- rbind(mpg.hwy, new.row)
+  }
+}
+data.frame(mpg.hwy)
+qplot(data = data.frame(mpg.hwy), 
+      geom = "tile", 
+      x = yr, y = man, fill= as.numeric(hwy),
+      xlab = NULL, ylab = NULL) + 
+  labs(fill = "MPG on highway") 
+```
+
+### Here are some basic statistics tools:
+
+```{r}
+lm1 <- lm(data = df1, v2 ~ v1)
+# lm(df1$v1 ~ df1$v2)   ## This would also work
+?lm # Fit a linear model to your data 
+plot(data = df1, v2 ~ v1)
+abline(lm1)
+
+rr.m <- NULL # See what happens when you leave this step out
+for (i in 1:10000) {
+  rr <- rexp(100, rate = 4)
+  rr.m[i] <- mean(rr)
+}
+hist(rr.m, breaks = 100)
+plot(rr.m)
+```
+
+Those are most of the basics. 
+
+Other things:
+
+* Functions: I've really been trying to write more of the long code I do as functions. This means I don't have to copy and paste it elsewhere. 
